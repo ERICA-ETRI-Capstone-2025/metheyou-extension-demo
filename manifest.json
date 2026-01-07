@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "믿어유 (MeTheYou)",
+  "version": "1.0.0",
+  "description": "AI 기반 유튜브 컨텐츠 분석 - 영상의 맥락을 파악하고 적합성을 알려드립니다",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+        "192": "icons/icon-192.png",
+        "512": "icons/icon-512.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["utils.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "192": "icons/icon-192.png",
+    "512": "icons/icon-512.png"
+  }
+}

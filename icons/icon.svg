@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="url(#gradient)"/>
+  
+  <!-- YouTube Play Button -->
+  <circle cx="64" cy="54" r="28" fill="white" opacity="0.9"/>
+  <path d="M56 44L78 54L56 64V44Z" fill="#667eea"/>
+  
+  <!-- Download Arrow -->
+  <path d="M64 78V94M64 94L56 86M64 94L72 86" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M48 102H80" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#667eea"/>
+      <stop offset="1" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>믿어유 (MeTheYou)</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header>
+      <h1>믿어유</h1>
+      <p class="subtitle">AI 기반 유튜브 컨텐츠 분석</p>
+    </header>
+    
+    <main id="content">
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>분석 정보를 불러오는 중...</p>
+      </div>
+      
+      <div id="video-info" class="video-info" style="display: none;">
+        <div class="thumbnail-container">
+          <img id="thumbnail" class="thumbnail" src="" alt="Thumbnail">
+        </div>
+        
+        <div class="score-container">
+          <div id="score" class="score">-</div>
+          <div class="score-label">/ 100점</div>
+          <div id="score-level" class="score-level">-</div>
+        </div>
+        
+        <div class="info-section">
+          <h3 class="section-title">영상 정보</h3>
+          <div class="video-meta">
+            <div id="video-title" class="video-title">제목을 불러오는 중...</div>
+            <div class="video-details">
+              <div class="detail-item">
+                <span class="detail-label">채널:</span>
+                <span id="channel-name" class="detail-value">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">게시일:</span>
+                <span id="published-date" class="detail-value">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h3 class="section-title">분석 의견</h3>
+          <div id="description" class="description">분석 의견을 불러오는 중...</div>
+        </div>
+        
+        <div id="tags-section" class="info-section" style="display: none;">
+          <h3 class="section-title">태그</h3>
+          <div id="tags" class="tags"></div>
+        </div>
+      </div>
+      
+      <div id="not-analyzed" class="not-analyzed" style="display: none;">
+        <div class="thumbnail-container">
+          <img id="thumbnail-preview" class="thumbnail" src="" alt="Thumbnail">
+        </div>
+        
+        <div class="not-analyzed-content">
+          <div class="not-analyzed-icon">⚠️</div>
+          <h3 class="not-analyzed-title">아직 분석되지 않은 영상입니다</h3>
+          <p class="not-analyzed-text">이 영상의 적합성을 AI로 분석할 수 있습니다.</p>
+          <button id="start-analysis-btn" class="start-analysis-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            분석 시작
+          </button>
+        </div>
+      </div>
+      
+      <div id="error" class="error" style="display: none;">
+        <div class="error-icon">⚠️</div>
+        <p id="error-message">YouTube 동영상 페이지에서 실행해주세요.</p>
+      </div>
+      
+      <div id="settings-section" class="settings-section">
+        <h3 class="section-title">설정</h3>
+        <div class="settings-item">
+          <label for="api-base-url">API 서버 주소:</label>
+          <input type="text" id="api-base-url" placeholder="https://metheyou-api.pdj.kr">
+          <button id="save-settings-btn" class="save-btn">저장</button>
+        </div>
+        <div id="save-message" class="save-message" style="display: none;"></div>
+      </div>
+    </main>
+    
+    <footer>
+      <p class="footer-text">Powered by AI Analysis</p>
+    </footer>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

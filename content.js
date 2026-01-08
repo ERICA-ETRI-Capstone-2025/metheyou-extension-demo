@@ -2,7 +2,6 @@
 
 let currentVideoId = null;
 let pillButton = null;
-let retryCount = 0;
 let pillCheckInterval = null;
 let currentVideoData = null;
 
@@ -36,7 +35,8 @@ function updatePillButton(state, data = {}) {
       pillButton.classList.add('analyze');
       text.textContent = '분석 필요';
       pillButton.onclick = () => {
-        alert('확장 메뉴를 열어 영상을 분석해 주세요.');
+        const videoUrl = `https://www.youtube.com/watch?v=${currentVideoId}`;
+        window.open(`https://metheyou.pdj.kr#${videoUrl}`, '_blank');
       };
       break;
       
@@ -46,16 +46,16 @@ function updatePillButton(state, data = {}) {
       
       if (score >= 80) {
         pillButton.classList.add('score', 'score-high');
-        level = '매우 안전';
+        level = '안전';
       } else if (score >= 60) {
         pillButton.classList.add('score', 'score-medium');
-        level = '안전';
+        level = '보통';
       } else if (score >= 40) {
         pillButton.classList.add('score', 'score-medium');
-        level = '보통';
+        level = '주의';
       } else {
         pillButton.classList.add('score', 'score-low');
-        level = '주의';
+        level = '위험';
       }
       
       text.textContent = `점수: ${score} (${level})`;
@@ -70,15 +70,8 @@ function updatePillButton(state, data = {}) {
   }
 }
 
-// YouTube 컨트롤 영역에 버튼 추가
-function attachPillButton() {
-  const existing = document.getElementById('metheyou-pill');
-  if (existing) {
-    // 이미 pill이 존재하고 올바른 상태면 그냥 반환
-    return true;
-  }
-  
-  // 여러 선택자 시도
+// 버튼 컨테이너를 찾는 함수
+function findButtonContainer() {
   const selectors = [
     'ytd-menu-renderer.ytd-watch-metadata #top-level-buttons-computed',
     '#top-level-buttons-computed',
@@ -88,24 +81,40 @@ function attachPillButton() {
     'ytd-video-primary-info-renderer #menu-container'
   ];
   
-  let targetContainer = null;
   for (const selector of selectors) {
-    const elem = document.querySelector(selector);
-    if (elem) {
-      targetContainer = elem;
-      console.log('[MeTheYou]  버튼 컨테이너 발견:', selector);
-      break;
+    const elems = document.querySelectorAll(selector);
+    
+    // 여러 개가 있을 수 있으므로 visible한 것만 찾기
+    for (const elem of elems) {
+      if (elem && elem.offsetParent !== null && elem.offsetWidth > 0 && elem.offsetHeight > 0) {
+        // watch 페이지의 메인 컨텐츠 영역 안에 있는지 확인
+        const watchFlexy = elem.closest('ytd-watch-flexy');
+        if (watchFlexy) {
+          return { container: elem, selector };
+        }
+      }
     }
   }
+  return null;
+}
+
+// YouTube 컨트롤 영역에 버튼 추가 (동기 함수)
+function attachPillButton() {
+  // 이미 pill이 존재하면 성공
+  const existing = document.getElementById('metheyou-pill');
+  if (existing) {
+    return true;
+  }
   
-  if (!targetContainer) {
-    console.warn('[MeTheYou]  컨테이너를 아직 찾을 수 없음');
+  // 버튼 컨테이너 찾기
+  const result = findButtonContainer();
+  if (!result) {
     return false;
   }
   
+  // Pill 생성 및 추가
   pillButton = createPillButton();
-  targetContainer.appendChild(pillButton);
-  console.log('[MeTheYou]  Pill 버튼 추가 완료!');
+  result.container.appendChild(pillButton);
   
   // 현재 저장된 데이터가 있으면 적용
   if (currentVideoData) {
@@ -123,52 +132,24 @@ function attachPillButton() {
 
 // Pill 버튼이 DOM에 존재하는지 주기적으로 확인하고 없으면 추가
 function startPillMonitoring() {
-  // 기존 interval 정리
+  // 이미 실행 중이면 리턴
   if (pillCheckInterval) {
-    clearInterval(pillCheckInterval);
+    return;
   }
   
-  console.log('[MeTheYou] Pill 모니터링 시작');
-  
-  // 500ms마다 pill 존재 확인 (더 빠르게)
+  // 1초마다 pill 확인 및 추가 시도
   pillCheckInterval = setInterval(() => {
+    // watch 페이지가 아니면 패스
     if (window.location.pathname !== '/watch') {
       return;
     }
     
+    // pill이 없으면 추가 시도
     const existing = document.getElementById('metheyou-pill');
     if (!existing) {
-      console.log('[MeTheYou] Pill 버튼이 사라짐 - 재추가 시도');
-      const success = attachPillButton();
-      if (success) {
-        console.log('[MeTheYou] Pill 버튼 재추가 성공');
-      }
+      attachPillButton();
     }
-  }, 500);
-  
-  // DOM 변경 감지로도 체크
-  const observer = new MutationObserver(() => {
-    if (window.location.pathname !== '/watch') {
-      return;
-    }
-    
-    const existing = document.getElementById('metheyou-pill');
-    if (!existing) {
-      setTimeout(() => {
-        const stillMissing = !document.getElementById('metheyou-pill');
-        if (stillMissing) {
-          console.log('[MeTheYou] DOM 변경으로 pill 사라짐 감지');
-          attachPillButton();
-        }
-      }, 100);
-    }
-  });
-  
-  // YouTube 플레이어 영역 감시
-  const ytdWatch = document.querySelector('ytd-watch-flexy') || document.querySelector('#content');
-  if (ytdWatch) {
-    observer.observe(ytdWatch, { childList: true, subtree: true });
-  }
+  }, 1000);
 }
 
 // Pill 모니터링 중지
@@ -179,12 +160,12 @@ function stopPillMonitoring() {
   }
 }
 
+
 // 페이지 로드 시 캐시 확인
 async function checkCacheOnLoad() {
   const videoId = getYouTubeVideoId(window.location.href);
   
   if (!videoId || window.location.pathname !== '/watch') {
-    console.log('[MeTheYou] watch 페이지 아님');
     return;
   }
   
@@ -193,43 +174,25 @@ async function checkCacheOnLoad() {
   }
   
   currentVideoId = videoId;
-  console.log('[MeTheYou]  비디오 ID:', videoId);
   
-  // Pill 모니터링 시작
-  startPillMonitoring();
-  
-  // Pill 버튼 추가 (초기 시도 - 여러 번)
+  // 데이터 초기화
   currentVideoData = null;
   
-  // 즉시 시도
-  let success = attachPillButton();
+  // Pill 모니터링 시작 (주기적으로 pill 추가 시도)
+  startPillMonitoring();
   
-  // 성공할 때까지 재시도 (최대 10번, 300ms 간격)
-  let attempts = 0;
-  const retryInterval = setInterval(() => {
-    if (success || attempts >= 10) {
-      clearInterval(retryInterval);
-      return;
-    }
-    
-    attempts++;
-    console.log(`[MeTheYou] Pill 추가 재시도 (${attempts}/10)`);
-    success = attachPillButton();
-  }, 300);
+  // 즉시 한 번 시도
+  attachPillButton();
   
+  // API 호출
   try {
     const cached = await MeTheYouAPI.searchAnalysis(videoId);
-    console.log('[MeTheYou] API 응답:', cached);
-    console.log('[MeTheYou] found 값:', cached.found, '타입:', typeof cached.found);
-    console.log('[MeTheYou] 전체 키:', Object.keys(cached));
     
     // 데이터 저장
     if (cached.found === true || cached.found === 'true' || cached.found === 1) {
-      console.log('[MeTheYou] 캐시된 결과 - 점수:', cached.score);
       currentVideoData = { found: true, ...cached };
       updatePillButton('score', cached);
     } else {
-      console.log('[MeTheYou] 미분석 영상 (found:', cached.found, ')');
       currentVideoData = { found: false };
       updatePillButton('analyze');
     }
@@ -244,8 +207,10 @@ async function checkCacheOnLoad() {
 function observeUrlChange() {
   // YouTube의 네비게이션 이벤트 리스닝
   document.addEventListener('yt-navigate-finish', () => {
-    console.log('[MeTheYou] YouTube 네비게이션 감지');
-    onUrlChange();
+    // 짧은 지연을 주어 DOM이 준비되도록 함
+    setTimeout(() => {
+      onUrlChange();
+    }, 100);
   });
   
   // 추가 보험으로 URL 변경 감지
@@ -254,8 +219,9 @@ function observeUrlChange() {
     const url = location.href;
     if (url !== lastUrl) {
       lastUrl = url;
-      console.log('[MeTheYou] URL 변경 감지:', url);
-      onUrlChange();
+      setTimeout(() => {
+        onUrlChange();
+      }, 100);
     }
   }).observe(document, { subtree: true, childList: true });
 }
@@ -265,7 +231,6 @@ function onUrlChange() {
   const videoId = getYouTubeVideoId(window.location.href);
   
   if (!videoId || window.location.pathname !== '/watch') {
-    console.log('[MeTheYou] ❌ watch 페이지 아님 - pill 제거 및 모니터링 중지');
     stopPillMonitoring();
     if (pillButton && pillButton.parentNode) {
       pillButton.remove();
@@ -274,7 +239,6 @@ function onUrlChange() {
     currentVideoId = null;
     currentVideoData = null;
   } else {
-    console.log('[MeTheYou] ✅ 새 비디오 감지:', videoId);
     checkCacheOnLoad();
   }
 }
@@ -290,13 +254,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 초기화
 function init() {
-  console.log('[MeTheYou]  초기화 시작');
+  console.log('[MeTheYou] 초기화 시작');
+  
+  // URL 변경 감지 시작
   observeUrlChange();
   
-  // 2초 지연 후 버튼 추가 시도
-  setTimeout(() => {
-    checkCacheOnLoad();
-  }, 2000);
+  // 전역 모니터링 시작 (watch 페이지에서만 작동)
+  startPillMonitoring();
+  
+  // 현재 페이지가 watch 페이지인 경우 즉시 시도
+  if (window.location.pathname === '/watch') {
+    // 짧은 지연 후 시도 (DOM 준비 대기)
+    setTimeout(() => {
+      checkCacheOnLoad();
+    }, 500);
+  }
 }
 
 // 페이지 로드

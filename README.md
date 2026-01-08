@@ -1,6 +1,6 @@
 # MeTheYou Chrome Extension
 
-YouTube 영상의 콘텐츠 적합성을 분석하고 점수를 표시하는 Chrome 확장 프로그램입니다.
+AI 기반 유튜브 안심 컨텐츠 분석 솔루션 믿어유(MeTheYou)의 Chromium 확장 프론트엔드 앱
 
 ## 주요 기능
 

@@ -8,26 +8,28 @@
 
 body {
   width: 420px;
-  min-height: 600px;
+  height: 600px;
   font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: #ffffff;
   color: #1a1a1a;
+  overflow: hidden;
 }
 
 .popup-container {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 600px;
+  max-height: 600px;
   background: #ffffff;
 }
 
 /* Header */
 header {
-  background: #1a1a1a;
-  color: #ffffff;
+  color: #292929;
   padding: 24px 20px;
   text-align: center;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #80808048;
 }
 
 header h1 {
@@ -49,7 +51,7 @@ main {
   flex: 1;
   padding: 0;
   overflow-y: auto;
-  max-height: 500px;
+  min-height: 0;
 }
 
 main::-webkit-scrollbar {
@@ -71,11 +73,35 @@ main::-webkit-scrollbar-thumb:hover {
 
 /* Loading */
 .loading {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.loading-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  filter: blur(10px);
+  z-index: 0;
+}
+
+.loading-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .spinner {
@@ -93,10 +119,11 @@ main::-webkit-scrollbar-thumb:hover {
   100% { transform: rotate(360deg); }
 }
 
-.loading p {
-  color: #6b7280;
+.loading-content p {
+  color: #1a1a1a;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* Video Info */
@@ -426,6 +453,11 @@ footer {
     color: #e5e7eb;
   }
   
+  header {
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+
   .popup-container {
     background: #0a0a0a;
   }

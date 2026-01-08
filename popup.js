@@ -5,6 +5,8 @@ const DEFAULT_API_BASE = 'https://metheyou-api.pdj.kr';
 // DOM 요소
 const elements = {
   loading: document.getElementById('loading'),
+  loadingMessage: document.getElementById('loading-message'),
+  loadingBackground: document.getElementById('loading-background'),
   videoInfo: document.getElementById('video-info'),
   notAnalyzed: document.getElementById('not-analyzed'),
   error: document.getElementById('error'),
@@ -49,19 +51,40 @@ function getScoreColor(score) {
 
 // 점수에 따른 레벨 텍스트 반환
 function getScoreLevel(score) {
-  if (score >= 80) return '매우 적합';
-  if (score >= 60) return '적합';
+  if (score >= 80) return '매우 안전';
+  if (score >= 60) return '안전';
   if (score >= 40) return '보통';
-  if (score >= 20) return '부적합';
-  return '매우 부적합';
+  return '주의';
+}
+
+// 분석 상태에 따른 메시지 반환
+function getStatusMessage(status) {
+  switch (status) {
+    case 'ready': return '영상 분석 준비 중...';
+    case 'extract': return '영상 데이터 로드 중...';
+    case 'trans': return '비디오/오디오 전처리 중...';
+    case 'analysis': return 'AI 분석 진행 중...';
+    case 'saving': return '분석 결과 저장 중...';
+    case 'success': return '분석 완료!';
+    case 'error': return '오류 발생';
+    case 'toolong': return '영상 길이 초과';
+    default: return '분석 진행 중...';
+  }
 }
 
 // UI 상태 변경
-function showLoading() {
+function showLoading(message = '분석 정보를 불러오는 중...', videoId = null) {
   elements.loading.style.display = 'flex';
   elements.videoInfo.style.display = 'none';
   elements.notAnalyzed.style.display = 'none';
   elements.error.style.display = 'none';
+  elements.loadingMessage.textContent = message;
+  
+  if (videoId) {
+    elements.loadingBackground.style.backgroundImage = `url(https://i.ytimg.com/vi/${videoId}/hq720.jpg)`;
+  } else {
+    elements.loadingBackground.style.backgroundImage = 'none';
+  }
 }
 
 function showVideoInfo() {
@@ -216,7 +239,7 @@ class MeTheYouAPI {
 // 비디오 분석 시작
 async function analyzeCurrentVideo(videoId) {
   try {
-    showLoading();
+    showLoading('영상 분석 요청 중...', videoId);
     console.log('[MeTheYou Popup] 분석 요청 시작:', videoId);
     
     // 분석 요청
@@ -229,9 +252,9 @@ async function analyzeCurrentVideo(videoId) {
     
     const taskId = requestResult.taskid;
     
-    // 상태 확인 (최대 60초, 2초 간격)
+    // 상태 확인 (최대 120초, 2초 간격)
     let attempts = 0;
-    const maxAttempts = 30;
+    const maxAttempts = 60;
     
     const checkInterval = setInterval(async () => {
       try {
@@ -241,17 +264,25 @@ async function analyzeCurrentVideo(videoId) {
         const status = await MeTheYouAPI.checkStatus(taskId);
         console.log('[MeTheYou Popup] 상태:', status);
         
+        // 상태 메시지 업데이트
+        const statusMessage = getStatusMessage(status.status);
+        elements.loadingMessage.textContent = statusMessage;
+        
         if (status.status === 'success') {
           clearInterval(checkInterval);
           
           // 결과 조회
+          showLoading('분석 결과 불러오는 중...', videoId);
           const result = await MeTheYouAPI.getResult(taskId);
           console.log('[MeTheYou Popup] 분석 결과:', result);
           
           displayResult(result, videoId);
-        } else if (status.status === 'failed') {
+        } else if (status.status === 'error') {
           clearInterval(checkInterval);
-          throw new Error('분석에 실패했습니다.');
+          throw new Error('분석에 실패했습니다. 다시 시도해주세요.');
+        } else if (status.status === 'toolong') {
+          clearInterval(checkInterval);
+          throw new Error('영상 길이가 너무 깁니다. 분석할 수 없습니다.');
         } else if (attempts >= maxAttempts) {
           clearInterval(checkInterval);
           throw new Error('분석 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
@@ -300,6 +331,7 @@ async function loadInitialData() {
     
     // 썸네일 미리보기 설정
     elements.thumbnailPreview.src = `https://i.ytimg.com/vi/${videoId}/hq720.jpg`;
+    elements.loadingBackground.style.backgroundImage = `url(https://i.ytimg.com/vi/${videoId}/hq720.jpg)`;
     
     // 캐시 확인
     console.log('[MeTheYou Popup] searchAnalysis 호출 전...');

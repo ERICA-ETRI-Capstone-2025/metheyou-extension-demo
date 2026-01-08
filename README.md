@@ -24,7 +24,7 @@ YouTube 영상의 콘텐츠 적합성을 분석하고 점수를 표시하는 Chr
 
 1. 저장소를 클론하거나 다운로드합니다.
    ```bash
-   git clone https://github.com/yourusername/metheyou-extension-demo.git
+   git clone https://github.com/ERICA-ETRI-Capstone-2025/metheyou-extension-demo.git
    ```
 
 2. Chrome 브라우저에서 `chrome://extensions/`를 엽니다.

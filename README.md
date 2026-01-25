@@ -18,6 +18,16 @@ AI 기반 유튜브 안심 컨텐츠 분석 솔루션 믿어유(MeTheYou)의 Chr
 | 40-59점 | 보통 |
 | 40점 미만 | 주의 |
 
+## 스크린샷
+
+<table>
+  <tr>
+    <td><img width="951" height="825" alt="image" src="https://github.com/user-attachments/assets/7e89c1e2-1bf2-4a29-b1a6-db209a6a5385" /></td>
+    <td><img width="953" height="825" alt="image" src="https://github.com/user-attachments/assets/93d8f1e6-61a0-43fa-a1e3-cc6754b3cb43" /></td>
+  </tr>
+</table>
+
+
 ## 설치 방법
 
 ### 개발자 모드로 설치
@@ -72,7 +82,7 @@ metheyou-extension-demo/
 
 ## API 연동
 
-이 확장 프로그램은 백엔드 API 서버와 통신합니다.
+이 확장 프로그램은 믿어유(MeTheYou) 백엔드 API 서버와 통신합니다.
 
 ### 사용되는 엔드포인트
 

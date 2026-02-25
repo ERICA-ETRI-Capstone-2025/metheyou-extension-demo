@@ -86,11 +86,11 @@ metheyou-extension-demo/
 
 ### 사용되는 엔드포인트
 
-1. **`GET /api/ai_search.php?vidid={video_id}`**
+1. **`GET /api/ai_search?vidid={video_id}`**
    - 분석 결과 검색
    - Response: `{"found": true/false, "score": number, "task_id": string}`
 
-2. **`POST /api/ai_request.php`**
+2. **`POST /api/ai_request`**
    - 새로운 분석 요청
    - Body: `{"id": "video_id"}`
    - Response: `{"taskid": "task_id"}`

@@ -40,7 +40,7 @@ class MeTheYouAPI {
   static async searchAnalysis(videoId) {
     try {
       const apiBase = await getApiBase();
-      const url = `${apiBase}/ai_search.php?vidid=${videoId}`;
+      const url = `${apiBase}/ai_search?vidid=${videoId}`;
       console.log('[MeTheYou API] searchAnalysis 요청:', url);
       
       const response = await fetch(url);
@@ -81,7 +81,7 @@ class MeTheYouAPI {
   static async requestAnalysis(videoId) {
     try {
       const apiBase = await getApiBase();
-      const response = await fetch(`${apiBase}/ai_request.php`, {
+      const response = await fetch(`${apiBase}/ai_request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: videoId })
@@ -104,7 +104,7 @@ class MeTheYouAPI {
   static async checkStatus(taskId) {
     try {
       const apiBase = await getApiBase();
-      const response = await fetch(`${apiBase}/ai_status.php?tid=${taskId}`);
+      const response = await fetch(`${apiBase}/ai_status?tid=${taskId}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -123,7 +123,7 @@ class MeTheYouAPI {
   static async getResult(taskId) {
     try {
       const apiBase = await getApiBase();
-      const response = await fetch(`${apiBase}/analysis_info.php?tid=${taskId}`);
+      const response = await fetch(`${apiBase}/analysis_info?tid=${taskId}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
